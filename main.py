@@ -149,7 +149,7 @@ elif Panel == 1:
     ]
 else:
     btnAMessages = [
-    ("Panel Test, Panel Test,COLOR_BLUE,COLOR_WHITE,COLOR_BLACK),
+    ("Panel Test, Panel Test",COLOR_BLUE,COLOR_WHITE,COLOR_BLACK),
     ("Pllltththth!",COLOR_RED,COLOR_WHITE,COLOR_BLACK),
     ]
 
