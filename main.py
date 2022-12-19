@@ -5,6 +5,9 @@ from picographics import PicoGraphics, DISPLAY_GALACTIC_UNICORN as DISPLAY
 DebugMode = False
 pauseTime = 2
 
+# Panel, 0 = Home, 1 = Work
+Panel = 1
+
 if DebugMode:
     time.sleep(pauseTime)
 
@@ -46,13 +49,13 @@ COLOR_TDAY = (128,128,0)
 # Make Pen
 def MakePen(grphcs,triple):
     pen = grphcs.create_pen(triple[0],triple[1],triple[2])
-    
+
     return pen
 
 # Send Debug Message To Display
 def Msg(message):
     global pauseTime, COLOR_BLACK, COLOR_GRAY
-    
+
     graphics.set_font("bitmap6")
     graphics.set_pen(MakePen(graphics,COLOR_BLACK))
     graphics.clear()
@@ -65,10 +68,10 @@ def Msg(message):
 # Only print when in Debug Mode
 def DbgMsg(message):
     global DebugMode
-    
+
     if DebugMode:
         Msg(message)
-        
+
 # returns the id of the button that is currently pressed or
 # None if none are
 def pressed():
@@ -85,13 +88,13 @@ def pressed():
 # Wait for Button Press
 def WaitPressed():
     button = None
-    
+
     while button == None:
         button = pressed()
-        
+
         if button == None:
             time.sleep(0.001)
-            
+
     return button
 
 # Wait for Buttons Released
@@ -102,7 +105,7 @@ def WaitReleased():
 # Send Notice to Display
 def Notice():
     global graphics, COLOR_BLACK, COLOR_GRAY
-    
+
     graphics.set_font("bitmap6")
     graphics.set_pen(MakePen(graphics,COLOR_BLACK))
     graphics.clear()
@@ -110,7 +113,7 @@ def Notice():
     graphics.text("PRESS", 12, -1, -1, 1)
     graphics.text("A B C OR D!", 2, 5, -1, 1)
     galactic.update(graphics)
-    
+
     time.sleep(0.5)
 
 #
@@ -119,7 +122,10 @@ def Notice():
 
 # Message Data
 # Color triple format is similar to btnC (Background,Text,Outline)
-btnAMessages = [
+btnAMessages = None
+
+if Panel == 0:
+    btnAMessages = [
     ("Sheeboo is Out!", COLOR_RED, COLOR_WHITE, COLOR_BLACK),
     ("Sheeboo is In!", COLOR_GREEN, COLOR_WHITE, COLOR_BLACK),
     ("Eric is Out!", COLOR_PIMBLUE, COLOR_WHITE, COLOR_BLACK),
@@ -128,6 +134,23 @@ btnAMessages = [
     ("Cats HAVE been fed!",COLOR_GREEN,COLOR_WHITE,COLOR_BLACK),
     ("Cats have NOT been Crunchied!",COLOR_RED,COLOR_WHITE,COLOR_BLACK),
     ("Cats HAVE been Crunchied!",COLOR_GREEN,COLOR_WHITE,COLOR_BLACK)
+    ]
+elif Panel == 1:
+    btnAMessages = [
+    (">>> World Domination In Progress <<<", COLOR_RED, COLOR_WHITE, COLOR_BLACK),
+    ("]]] Condition RED [[[", COLOR_RED, COLOR_WHITE, COLOR_BLACK),
+    ("[[[ Condition Green ]]]", COLOR_GREEN, COLOR_WHITE, COLOR_BLACK),
+    ("--> Go Away, You're Bothering Me <--", COLOR_PIMBLUE, COLOR_WHITE, COLOR_BLACK),
+    ("Eric is In!", COLOR_GREEN, COLOR_WHITE, COLOR_BLACK),
+    ("Eric is Out!", COLOR_PIMBLUE, COLOR_WHITE, COLOR_BLACK),
+    (".xX No Stupid Zone In Effect Xx.", COLOR_GREEN, COLOR_WHITE, COLOR_BLACK),
+    ("Leave Donations on the Desk, Cash or Hardware Only", COLOR_BLUE,COLOR_WHITE,COLOR_BLACK),
+    ("I know nothing, I just work here...", COLOR_PURPLE, COLOR_WHITE,COLOR_BLACK),
+    ]
+else:
+    btnAMessages = [
+    ("Panel Test, Panel Test,COLOR_BLUE,COLOR_WHITE,COLOR_BLACK),
+    ("Pllltththth!",COLOR_RED,COLOR_WHITE,COLOR_BLACK),
     ]
 
 # Button A Current Message (tuple)
@@ -156,6 +179,7 @@ btnCMessages = [
     [ "Happy Chinese New Year!", 1,0, COLOR_RED, COLOR_GOLD, COLOR_BLACK ],
     [ "Happy Easter!", 1, 0, COLOR_YELLOW, COLOR_BABYBLUE, COLOR_BLACK ],
     [ "Happy St. Patricks Day!", 1, 0, COLOR_GREEN, COLOR_WHITE, COLOR_BLACK ],
+    [ "Happy Birthday!",1,0,COLOR_WHITE,COLOR_BLUE,COLOR_BLACK ],
     [ "Happy Birthday Sheila!",1,0,COLOR_WHITE,COLOR_RED,COLOR_BLACK ],
     [ "Happy Birthday Eric!",1,0,COLOR_WHITE,COLOR_GREEN,COLOR_BLACK ]
     ]
@@ -179,40 +203,40 @@ fire.set_palette(0)
 while True:
     time.sleep(0.1)
 
-    try:        
+    try:
         while effect == None:
             if lastButtonPressed == None:
                 lastButtonPressed = pressed()
-            
+
             if lastButtonPressed == GalacticUnicorn.SWITCH_A:
                 DbgMsg("In/Out")
-                
+
                 effect = msg
-                
+
                 data = btnAMessages[btnACurrentMsg]
 
                 effect.SetMessage(data[0])
                 effect.SetBackgroundColor(data[1])
                 effect.SetMessageColor(data[2])
                 effect.SetOutlineColor(data[3])
-        
+
                 btnACurrentMsg += 1
                 btnACurrentMsg = (btnACurrentMsg % len(btnAMessages))
             elif lastButtonPressed == GalacticUnicorn.SWITCH_B:
                 DbgMsg("Effects")
-                
+
                 if btnBCurrentEffect == 0:
                     effect = fire
-                    
+
                     effect.next_palette()
                     firecount += 1
-                    
+
                     if firecount >= len(effect.palettes):
                         btnBCurrentEffect += 1
                         firecount = 0
                 elif btnBCurrentEffect == 1:
                     effect = supercomputer
-                    
+
                     effect.next_colour()
                     supercomputercount += 1
 
@@ -225,13 +249,13 @@ while True:
                 else:
                     effect = retroprompt
                     btnBCurrentEffect += 1
-            
+
                 btnBCurrentEffect = (btnBCurrentEffect % 4)
             elif lastButtonPressed == GalacticUnicorn.SWITCH_C:
                 DbgMsg("Holiday Msgs")
-                                
+
                 effect = msg
-                
+
                 data = btnCMessages[btnCCurrentMsg]
                 message = data[0]
                 colorcount = data[1]
@@ -239,7 +263,7 @@ while True:
                 color_triples = data[3:]
 
                 effect.SetMessage(message)
-                
+
                 if colorcount == 1:
                     if len(color_triples) == 1:
                         print("Setting single color")
@@ -256,24 +280,24 @@ while True:
                     effect.SetBackgroundColor(color_triples[currentcolor])
                     data[2] += 1
                     data[2] = (data[2] % len(color_triples))
-                
+
                 # Increment to next message with modulo
                 btnCCurrentMsg += 1
-                btnCCurrentMsg = (btnCCurrentMsg % len(btnCMessages))               
+                btnCCurrentMsg = (btnCCurrentMsg % len(btnCMessages))
             elif lastButtonPressed == GalacticUnicorn.SWITCH_D:
                 DbgMsg("Halting")
-                
+
                 Msg("Halting...")
-                
+
                 break
-                
+
             # wait until all buttons are released
             WaitReleased()
-            
+
             lastButtonPressed = None
     except Exception as err:
         Msg(str(err))
-        
+
     if effect != None:
         effect.graphics = graphics
         effect.init()
@@ -281,28 +305,28 @@ while True:
     brightness = 0.5
     sleep = False
     was_sleep_pressed = False
-    
+
     # wait
     while effect != None:
         # if A, B, C, or D are pressed then reset
-        
+
         lastButtonPressed = pressed()
-        
+
         if lastButtonPressed != None:
             effect = None
             WaitReleased()
             break
-    
+
         sleep_pressed = galactic.is_pressed(GalacticUnicorn.SWITCH_SLEEP)
         if sleep_pressed and not was_sleep_pressed:
             sleep = not sleep
-        
+
         was_sleep_pressed = sleep_pressed
-    
+
         if sleep:
             # fade out if screen not off
             galactic.set_brightness(galactic.get_brightness() - 0.05)
-        
+
             if effect != None and galactic.get_brightness() > 0.0:
                 effect.draw()
 
@@ -313,18 +337,18 @@ while True:
                 time.sleep(0.09)
         elif effect != None:
             effect.draw()
-        
+
             # update the display
             galactic.update(graphics)
-            
+
             # brightness up/down
             if galactic.is_pressed(GalacticUnicorn.SWITCH_BRIGHTNESS_UP):
                 brightness += 0.05
             if galactic.is_pressed(GalacticUnicorn.SWITCH_BRIGHTNESS_DOWN):
                 brightness -= 0.05
-            
+
             galactic.set_brightness(brightness)
-        
+
         # pause for a moment (important or the USB serial device will fail
         time.sleep(0.01)
 
