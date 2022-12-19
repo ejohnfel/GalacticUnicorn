@@ -9,12 +9,12 @@ Also added a function, msg.py to display messages based on an internal array of 
 
 Lastly, button changes.
 
-Button A display the messages in the selected array. There is an if-elfi-else structure to fill out the array for messages and a variable Panel which can be used to select which block of messages to display. The panel variable is an integer, unrecognized numbers simply display's test messages. This change is in case you have multiple displays that you may want to have multiple, seperate, messages on.
+Button A : displays the messages in the selected array. There is an if-elfi-else structure to fill out the array for messages and a variable Panel which can be used to select which block of messages to display. The panel variable is an integer, unrecognized numbers simply display's test messages. This change is in case you have multiple displays that you may want to have multiple, separate, messages on. Keep clicking the button to cycle through the messages.
 
-Button B compacts all the effects (fire, retroprompt, supercomputer, rainbow), while adding some new effects to fire and supercomputer.
+Button B : compacts all the effects (fire, retroprompt, supercomputer, rainbow) to this button, while adding some new effects to fire and supercomputer. Keep clicking the button to cycle through the effects.
 
-Button C shows holiday messages
+Button C : shows holiday messages. Keep clicking the button to cycle through the messages.
 
-Button D Halts the Display (useful for when some code goes wrong on the microcontroller).
+Button D : Halts the Display (useful for when some code goes wrong on the microcontroller).
 
 Sleep, lux+, lux- and reset work as normal.
