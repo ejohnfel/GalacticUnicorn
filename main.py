@@ -1,8 +1,10 @@
 import machine, time
+import random
 from galactic import GalacticUnicorn
 from picographics import PicoGraphics, DISPLAY_GALACTIC_UNICORN as DISPLAY
 
-DebugMode = False
+DebugMode = True
+OnlyPrint = True
 pauseTime = 2
 
 # Panel, 0 = Home, 1 = Work
@@ -67,10 +69,13 @@ def Msg(message):
 
 # Only print when in Debug Mode
 def DbgMsg(message):
-    global DebugMode
+    global DebugMode, OnlyPrint
 
     if DebugMode:
-        Msg(message)
+        if OnlyPrint:
+            print(message)
+        else:
+            Msg(message)
 
 # returns the id of the button that is currently pressed or
 # None if none are
@@ -199,14 +204,28 @@ supercomputercount = 0
 fire.graphics = graphics
 fire.set_palette(0)
 
+# Countdown for auto effect selection
+MaxCountWait = (10000 * 15)
+count = 0
+
 # wait for a button to be pressed and load that effect
 while True:
     time.sleep(0.1)
-
+    
     try:
         while effect == None:
             if lastButtonPressed == None:
                 lastButtonPressed = pressed()
+
+            if count > -1 and effect == None:
+                if count < MaxCountWait:
+                    count += 1
+                elif count >= MaxCountWait:
+                    # select a random effect to start
+                    btnBCurrentEffect = random.randint(0,2)
+                    lastButtonPressed = GalacticUnicorn.SWITCH_B
+                    count=-1
+                    DbgMsg("Setting random effect")
 
             if lastButtonPressed == GalacticUnicorn.SWITCH_A:
                 DbgMsg("In/Out")
@@ -224,23 +243,45 @@ while True:
                 btnACurrentMsg = (btnACurrentMsg % len(btnAMessages))
             elif lastButtonPressed == GalacticUnicorn.SWITCH_B:
                 DbgMsg("Effects")
-
+                
                 if btnBCurrentEffect == 0:
                     effect = fire
 
-                    effect.next_palette()
-                    firecount += 1
+                    items = len(effect.palettes)
 
-                    if firecount >= len(effect.palettes):
+                    if count == -1:
+                        count = -2
+                        
+                        cycle = random.randint(0,items-1)
+                        
+                        for index in range(0,cycle):
+                            effect.next_palette()
+                            firecount = index
+                    else:
+                        effect.next_palette()
+                        firecount += 1
+
+                    if firecount >= items:
                         btnBCurrentEffect += 1
                         firecount = 0
                 elif btnBCurrentEffect == 1:
                     effect = supercomputer
+                    
+                    items = len(effect.colours)
 
-                    effect.next_colour()
-                    supercomputercount += 1
+                    if count == -1:
+                        count = -2
+                        
+                        cycle = random.randint(0,items-1)
+                        
+                        for index in range(0,cycle):
+                            effect.next_colour()
+                            supercomputercount = index
+                    else:
+                        effect.next_colour()
+                        supercomputercount += 1
 
-                    if supercomputercount >= len(effect.colours):
+                    if supercomputercount >= items:
                         btnBCurrentEffect += 1
                         supercomputercount = 0
                 elif btnBCurrentEffect == 2:
@@ -295,6 +336,7 @@ while True:
             WaitReleased()
 
             lastButtonPressed = None
+                
     except Exception as err:
         Msg(str(err))
 
