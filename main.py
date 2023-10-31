@@ -6,9 +6,10 @@ from picographics import PicoGraphics, DISPLAY_GALACTIC_UNICORN as DISPLAY
 DebugMode = True
 OnlyPrint = True
 pauseTime = 2
+randomEffects = False
 
 # Panel, 0 = Home, 1 = Work
-Panel = 1
+Panel = 0
 
 if DebugMode:
     time.sleep(pauseTime)
@@ -48,6 +49,28 @@ COLOR_PIMORANGE = (230,150,0)
 COLOR_SPOOKYGREEN = (102,255,153)
 COLOR_TDAY = (128,128,0)
 
+colors = [
+    COLOR_WHITE,
+    COLOR_BLACK,
+    COLOR_RED,
+    COLOR_GREEN,
+    COLOR_BLUE,
+    COLOR_YELLOW,
+    COLOR_GOLD,
+    COLOR_ORANGE,
+    COLOR_PURPLE,
+    COLOR_PINK,
+    COLOR_REDPINK,
+    COLOR_FUCHIA,
+    COLOR_BABYBLUE,
+    COLOR_GRAY,
+    COLOR_BROWN,
+    COLOR_PIMBLUE,
+    COLOR_PIMORANGE,
+    COLOR_SPOOKYGREEN,
+    COLOR_TDAY    
+    ]
+
 # Make Pen
 def MakePen(grphcs,triple):
     pen = grphcs.create_pen(triple[0],triple[1],triple[2])
@@ -80,14 +103,21 @@ def DbgMsg(message):
 # returns the id of the button that is currently pressed or
 # None if none are
 def pressed():
+    global randomEffects
+    
     if galactic.is_pressed(GalacticUnicorn.SWITCH_A):
+        randomEffects = False
         return GalacticUnicorn.SWITCH_A
     if galactic.is_pressed(GalacticUnicorn.SWITCH_B):
+        randomEffects = False
         return GalacticUnicorn.SWITCH_B
     if galactic.is_pressed(GalacticUnicorn.SWITCH_C):
+        randomEffects = False
         return GalacticUnicorn.SWITCH_C
     if galactic.is_pressed(GalacticUnicorn.SWITCH_D):
+        randomEffects = False
         return GalacticUnicorn.SWITCH_D
+
     return None
 
 # Wait for Button Press
@@ -131,10 +161,10 @@ btnAMessages = None
 
 if Panel == 0:
     btnAMessages = [
-    ("Sheeboo is Out!", COLOR_RED, COLOR_WHITE, COLOR_BLACK),
-    ("Sheeboo is In!", COLOR_GREEN, COLOR_WHITE, COLOR_BLACK),
     ("Eric is Out!", COLOR_PIMBLUE, COLOR_WHITE, COLOR_BLACK),
     ("Eric is In!", COLOR_GREEN, COLOR_WHITE, COLOR_BLACK),
+    ("Sheeboo is Out!", COLOR_RED, COLOR_WHITE, COLOR_BLACK),
+    ("Sheeboo is In!", COLOR_GREEN, COLOR_WHITE, COLOR_BLACK),
     ("Cats have NOT been fed!",COLOR_RED,COLOR_WHITE,COLOR_BLACK),
     ("Cats HAVE been fed!",COLOR_GREEN,COLOR_WHITE,COLOR_BLACK),
     ("Cats have NOT been Crunchied!",COLOR_RED,COLOR_WHITE,COLOR_BLACK),
@@ -206,6 +236,7 @@ fire.set_palette(0)
 
 # Countdown for auto effect selection
 MaxCountWait = (10000 * 15)
+rCount = 0
 count = 0
 
 # wait for a button to be pressed and load that effect
@@ -225,8 +256,10 @@ while True:
                     btnBCurrentEffect = random.randint(0,2)
                     lastButtonPressed = GalacticUnicorn.SWITCH_B
                     count=-1
+                    randomEffects = True
+                    MaxCountWait = (100000 * 15)
                     DbgMsg("Setting random effect")
-
+                
             if lastButtonPressed == GalacticUnicorn.SWITCH_A:
                 DbgMsg("In/Out")
 
@@ -285,6 +318,11 @@ while True:
                         btnBCurrentEffect += 1
                         supercomputercount = 0
                 elif btnBCurrentEffect == 2:
+                    effect = supercomputer
+                    
+                    effect.use_random_colors = True
+                    btnBCurrentEffect += 1
+                elif btnBCurrentEffect == 3:
                     effect = rainbow
                     btnBCurrentEffect += 1
                 else:
@@ -336,7 +374,16 @@ while True:
             WaitReleased()
 
             lastButtonPressed = None
+        else:
+            if effect != None and randomEffects:
+                rCount += 1
                 
+                if rCount >= MaxCountWait:
+                    btnBCurrentEffect = random.randint(0,2)
+                    lastButtonPressed = GalacticUnicorn.SWITCH_B
+                    rCount = 0
+                    DbgMsg("Changing random effect")
+                    
     except Exception as err:
         Msg(str(err))
 
